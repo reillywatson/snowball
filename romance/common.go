@@ -1,7 +1,7 @@
 package romance
 
 import (
-	"github.com/kljensen/snowball/snowballword"
+	"github.com/reillywatson/snowball/snowballword"
 )
 
 // A function type that accepts a rune and
