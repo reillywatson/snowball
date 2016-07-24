@@ -4,13 +4,19 @@ import (
 	"github.com/kljensen/snowball/snowballword"
 )
 
+var (
+	sApostS = snowballword.MakeSuffix("'s'")
+	apostS  = snowballword.MakeSuffix("'s")
+	apost   = snowballword.MakeSuffix("'")
+)
+
 // Step 0 is to strip off apostrophes and "s".
 //
 func step0(w *snowballword.SnowballWord) bool {
-	suffix, suffixRunes := w.FirstSuffix("'s'", "'s", "'")
-	if suffix == "" {
+	suffix := w.FirstSuffixA(sApostS, apostS, apost)
+	if suffix == nil {
 		return false
 	}
-	w.RemoveLastNRunes(len(suffixRunes))
+	w.RemoveLastNRunes(len(suffix.Runes))
 	return true
 }

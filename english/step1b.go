@@ -4,29 +4,50 @@ import (
 	"github.com/kljensen/snowball/snowballword"
 )
 
+var (
+	eedly = snowballword.MakeSuffix("eedly")
+	ingly = snowballword.MakeSuffix("ingly")
+	edly  = snowballword.MakeSuffix("edly")
+	ing   = snowballword.MakeSuffix("ing")
+	eed   = snowballword.MakeSuffix("eed")
+	ed    = snowballword.MakeSuffix("ed")
+	at    = snowballword.MakeSuffix("at")
+	bl    = snowballword.MakeSuffix("bl")
+	iz    = snowballword.MakeSuffix("iz")
+	bb    = snowballword.MakeSuffix("bb")
+	dd    = snowballword.MakeSuffix("dd")
+	ff    = snowballword.MakeSuffix("ff")
+	gg    = snowballword.MakeSuffix("gg")
+	mm    = snowballword.MakeSuffix("mm")
+	nn    = snowballword.MakeSuffix("nn")
+	pp    = snowballword.MakeSuffix("pp")
+	rr    = snowballword.MakeSuffix("rr")
+	tt    = snowballword.MakeSuffix("tt")
+)
+
 // Step 1b is the normalization of various "ly" and "ed" sufficies.
 //
 func step1b(w *snowballword.SnowballWord) bool {
 
-	suffix, suffixRunes := w.FirstSuffix("eedly", "ingly", "edly", "ing", "eed", "ed")
+	suffix := w.FirstSuffixA(eedly, ingly, edly, ing, eed, ed)
 
 	switch suffix {
 
-	case "":
+	case nil:
 		// No suffix found
 		return false
 
-	case "eed", "eedly":
+	case eed, eedly:
 
 		// Replace by ee if in R1
-		if len(suffixRunes) <= len(w.RS)-w.R1start {
-			w.ReplaceSuffixRunes(suffixRunes, []rune("ee"), true)
+		if len(suffix.Runes) <= len(w.RS)-w.R1start {
+			w.ReplaceSuffixRunes(suffix.Runes, []rune("ee"), true)
 		}
 		return true
 
-	case "ed", "edly", "ing", "ingly":
+	case ed, edly, ing, ingly:
 		hasLowerVowel := false
-		for i := 0; i < len(w.RS)-len(suffixRunes); i++ {
+		for i := 0; i < len(w.RS)-len(suffix.Runes); i++ {
 			if isLowerVowel(w.RS[i]) {
 				hasLowerVowel = true
 				break
@@ -45,14 +66,14 @@ func step1b(w *snowballword.SnowballWord) bool {
 			originalR2start := w.R2start
 
 			// Delete if the preceding word part contains a vowel
-			w.RemoveLastNRunes(len(suffixRunes))
+			w.RemoveLastNRunes(len(suffix.Runes))
 
 			// ...and after the deletion...
 
-			newSuffix, newSuffixRunes := w.FirstSuffix("at", "bl", "iz", "bb", "dd", "ff", "gg", "mm", "nn", "pp", "rr", "tt")
+			newSuffix := w.FirstSuffixA(at, bl, iz, bb, dd, ff, gg, mm, nn, pp, rr, tt)
 			switch newSuffix {
 
-			case "":
+			case nil:
 
 				// If the word is short, add "e"
 				if isShortWord(w) {
@@ -65,12 +86,12 @@ func step1b(w *snowballword.SnowballWord) bool {
 					return true
 				}
 
-			case "at", "bl", "iz":
+			case at, bl, iz:
 
 				// If the word ends "at", "bl" or "iz" add "e"
-				w.ReplaceSuffixRunes(newSuffixRunes, []rune(newSuffix+"e"), true)
+				w.ReplaceSuffixRunes(newSuffix.Runes, append(newSuffix.Runes, rune('e')), true)
 
-			case "bb", "dd", "ff", "gg", "mm", "nn", "pp", "rr", "tt":
+			case bb, dd, ff, gg, mm, nn, pp, rr, tt:
 
 				// If the word ends with a double remove the last letter.
 				// Note that, "double" does not include all possible doubles,
