@@ -77,6 +77,12 @@ func uncapitalizeYs(word *snowballword.SnowballWord) {
 	return
 }
 
+var (
+	gener  = snowballword.MakePrefix("gener")
+	commun = snowballword.MakePrefix("commun")
+	arsen  = snowballword.MakePrefix("arsen")
+)
+
 // Find the starting point of the two regions R1 & R2.
 //
 // R1 is the region after the first non-vowel following a vowel,
@@ -91,10 +97,10 @@ func uncapitalizeYs(word *snowballword.SnowballWord) {
 //
 func r1r2(word *snowballword.SnowballWord) (r1start, r2start int) {
 
-	specialPrefix, _ := word.FirstPrefix("gener", "commun", "arsen")
+	specialPrefix := word.FirstPrefixA(gener, commun, arsen)
 
-	if specialPrefix != "" {
-		r1start = len(specialPrefix)
+	if specialPrefix != nil {
+		r1start = len(specialPrefix.Runes)
 	} else {
 		r1start = romance.VnvSuffix(word, isLowerVowel, 0)
 	}

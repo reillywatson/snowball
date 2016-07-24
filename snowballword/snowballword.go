@@ -205,6 +205,40 @@ func (w *SnowballWord) FirstPrefix(prefixes ...string) (foundPrefix string, foun
 	return
 }
 
+type Prefix struct {
+	Runes []rune
+}
+
+func MakePrefix(prefix string) *Prefix {
+	return &Prefix{Runes: []rune(prefix)}
+}
+
+// Return the first prefix found or the empty string.
+func (w *SnowballWord) FirstPrefixA(prefixes ...*Prefix) *Prefix {
+	found := false
+	var foundPrefix *Prefix
+	rsLen := len(w.RS)
+
+	for _, prefix := range prefixes {
+		if len(prefix.Runes) > rsLen {
+			continue
+		}
+
+		found = true
+		for i, r := range prefix.Runes {
+			if i > rsLen-1 || (w.RS)[i] != r {
+				found = false
+				break
+			}
+		}
+		if found {
+			foundPrefix = prefix
+			break
+		}
+	}
+	return foundPrefix
+}
+
 // Return true if `w.RS[startPos:endPos]` ends with runes from `suffixRunes`.
 // That is, the slice of runes between startPos and endPos have a suffix of
 // suffixRunes.
